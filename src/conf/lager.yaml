@@ -1,0 +1,33 @@
+---
+#writers: |files|stdout
+writers: logstream
+
+#LoggerLevel:|DEBUG|INFO|WARN|ERROR|FATAL
+logger_level: INFO
+
+#LoggerFile:used to output the name of a log.可以配置绝对路径，也可以配置用于拼接CHASSIS_HOME的相对路径
+# for local running
+#logger file: local path
+#for running on VM
+logger_file: /opt/csplog/0/mediacache/mediacache.log
+
+
+log_format_text: true
+
+rollingPolicy: size
+
+log_rotate_date: 15
+
+log_rotate_size: 20
+
+log_backup_count: 15
+
+lineNumDisplay: true
+
+controlFlow: false
+
+go_routine_display: true
+
+filterFileName:
+
+centralized_Log: "/opt/csp/mediacache/module/conf/centerLogConf.json"

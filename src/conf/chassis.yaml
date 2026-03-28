@@ -1,0 +1,66 @@
+---
+APPLICATION_ID: CSP
+
+cse:
+  service:
+    registry:
+      #disabled:false        optional:禁用注册发现选项，默认开始注册发现
+      type: servicecenter
+      scope: full
+      address: https://cse-service-center.manage:30100
+      #address: http://127.0.0.1:30100 # for local running
+      #register: manual   #optionnal: register default val is auto, optional para are auto and manual
+      refeshInterval : 30s
+      timeout : 4s
+      watch: true
+      autodiscovery : true
+      api:
+        version: v4
+  protocols:
+    rest:
+      listenAddress: 127.0.0.1:9993
+      advertiseAddress: 127.0.0.1:9996
+      transport: tcp #optional 指定加载哪个传输层
+      workerNumber: 10
+      failure: http_500,http_502 # Defines what is considered an unsuccessful attempt of communication with a server
+  handler:
+    chain:
+      Consumer:
+        default: loadbalance,transport
+      Provider:
+        default: ""
+  references:       #optional:配置客户端依赖的微服务信息，协议信息
+    OM_MGR:
+      version: 0+
+      transport: rest
+    ModuleKeeper:
+      version: 0+
+      transport: rest
+    GaussDB:
+      version: 0+
+      transport: rest
+    OpsAgent:
+      version: 0+
+      transport: rest
+    FMService:
+      version: 0+
+      transport: rest
+    PaaSBroker:
+      version: 0+
+      transport: rest
+    CSPAOD:
+      version: 0+
+      transport: rest
+    AuditLog:
+      version: 0+
+      transport: rest
+    Privilege:
+      version: 0+
+      transport: rest
+arb_configuration:
+  arbType: 1
+  fastheartbeat:
+    FastHeartbeatOpen: true
+  HTimeSec: 1
+  HTimeNum: 25
+  needReboot: 1

@@ -1,0 +1,24 @@
+{
+  "APIService": {
+    "default": [
+      {
+        "type": "concurrent_limit",
+        "mode": "local",
+        "time_unit": "second",
+        "time_interval": 1,
+        "rate_limit": 400
+      }
+    ],
+    "override": {
+      "^/.*": [
+        {
+          "type": "concurrent_limit",
+          "mode": "local",
+          "time_unit": "second",
+          "time_interval": 1,
+          "rate_limit": 400
+        }
+      ]
+    }
+  }
+}
