@@ -18,7 +18,7 @@ func main() {
 	logger.Init(conf.GlobalConfig.Logger.LogFile, conf.GlobalConfig.Logger.LogLevel)
 
 	// 3. 初始化定时任务
-	tasks.Init()
+	tasks.InitCronTasks()
 
 	// 4. 注册路由并启动HTTP服务
 	routers.Init()
