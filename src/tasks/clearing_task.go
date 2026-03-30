@@ -40,7 +40,7 @@ func clearingTask(ctx goctx.Context) error {
 	}
 
 	// 未超过清理阈值则跳过
-	if usedMb <= int64(cleanThreshold) {
+	if usedMb <= cleanThreshold {
 		logger.Infof("[ClearingTask] usedMb %d <= cleanThreshold %d, skip cleaning task", usedMb, cleanThreshold)
 		return nil
 	}

@@ -18,8 +18,14 @@ type authServiceImpl struct {
 }
 
 // NewAuthService 创建鉴权服务实例（依赖注入）
-func NewAuthService(r remote.Remote) AuthService {
-	return &authServiceImpl{remote: r}
+//func NewAuthService(r remote.Remote) AuthService {
+//	return &authServiceImpl{remote: r}
+//}
+
+func NewAuthService() *authServiceImpl {
+	return &authServiceImpl{
+		remote: remote.NewRemote(),
+	}
 }
 
 // ValidateIMEI 验证设备IMEI是否有效

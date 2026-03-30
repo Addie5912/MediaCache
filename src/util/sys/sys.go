@@ -12,7 +12,7 @@ import (
 
 // Interface 系统操作接口
 type Interface interface {
-	SysDirSize(dirPath string) (int64, error)
+	SysDirSize(dirPath string) (int, error)
 	DeleteInactiveFile(dirPath string, threshold int, timeout time.Duration) error
 }
 
@@ -25,7 +25,7 @@ func NewFunc() Interface {
 }
 
 // SysDirSize 获取目录大小（MB），使用 du -sm 命令
-func (s *sysImpl) SysDirSize(dirPath string) (int64, error) {
+func (s *sysImpl) SysDirSize(dirPath string) (int, error) {
 	cmd := exec.Command("du", "-sm", dirPath)
 	output, err := cmd.Output()
 	if err != nil {
@@ -39,15 +39,17 @@ func (s *sysImpl) SysDirSize(dirPath string) (int64, error) {
 	if err != nil {
 		return 0, fmt.Errorf("parse du output failed: %v", err)
 	}
-	return size, nil
+	return int(size), nil
 }
 
 // DeleteInactiveFile 删除访问时间超过阈值天数的文件，支持超时控制
 func (s *sysImpl) DeleteInactiveFile(dirPath string, threshold int, timeout time.Duration) error {
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
-	cmd := exec.CommandContext(ctx, "bash", "-c",
-		fmt.Sprintf("find %s -type f -atime +%d -exec rm -f {} \\;", dirPath, threshold))
+
+	cmd := exec.CommandContext(ctx, "find", dirPath, "-type", "f", "-atime",
+		fmt.Sprintf("%d", threshold, "-delete"))
+	// fmt.Sprintf("find %s -type f -atime +%d -exec rm -f {} \\;", dirPath, threshold)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("failed to delete inactive files: %v, output: %s", err, output)

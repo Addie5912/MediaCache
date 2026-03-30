@@ -11,6 +11,13 @@ import (
 
 // scanningTask 扫描任务：统计缓存目录磁盘使用情况，更新缓存可用状态
 func scanningTask(ctx goctx.Context) error {
+	select {
+	case <-ctx.Done():
+		logger.Infof("[ScanningTask] task is over")
+		return nil
+	default:
+	}
+
 	cf := conf.Instance()
 	cachePath := cf.MediaCache
 
@@ -27,7 +34,7 @@ func scanningTask(ctx goctx.Context) error {
 		logger.Errorf("[ScanningTask] parse ClearingTaskThreshold failed: %v", err)
 		return err
 	}
-	threshold := int64(math.Floor(float64(cleanOriThreshold) * 0.85))
+	threshold := int(math.Floor(float64(cleanOriThreshold) * 0.85))
 
 	available := usedMb <= threshold
 	conf.SetCacheAvailable(available)

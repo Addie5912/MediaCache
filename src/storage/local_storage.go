@@ -16,6 +16,7 @@ import (
 const (
 	// VideoCacheDirPermission 缓存目录权限
 	VideoCacheDirPermission = 0755
+	LocalStorage            = "LocalStorage"
 )
 
 // localStorage 本地存储实现

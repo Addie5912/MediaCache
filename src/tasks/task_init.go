@@ -1,13 +1,18 @@
 package tasks
 
 import (
-	"fmt"
 	goctx "context"
+	"fmt"
 	"mediaCacheService/common/conf"
 	"mediaCacheService/common/logger"
 	"strconv"
 
 	"github.com/beego/beego/v2/task"
+)
+
+const (
+	defaultScanningTaskPeriod = 1
+	defaultCleaningTaskPeriod = 24
 )
 
 // InitCronTasks 初始化并注册所有定时任务
@@ -18,14 +23,14 @@ func InitCronTasks() {
 	stp, err := strconv.Atoi(cf.DataAging.ScanningTaskPeriod)
 	if err != nil {
 		logger.Errorf("[Tasks] parse ScanningTaskPeriod failed: %v, use default 1h", err)
-		stp = 1
+		stp = defaultScanningTaskPeriod
 	}
 
 	// 解析清理任务周期（默认24小时）
 	ctp, err := strconv.Atoi(cf.DataAging.ClearingTaskPeriod)
 	if err != nil {
 		logger.Errorf("[Tasks] parse ClearingTaskPeriod failed: %v, use default 24h", err)
-		ctp = 24
+		ctp = defaultCleaningTaskPeriod
 	}
 
 	// 注册扫描任务（每 stp 小时执行一次）
