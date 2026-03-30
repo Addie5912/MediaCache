@@ -14,14 +14,19 @@ func Parse(obj interface{}) interface{} {
 	if val.Kind() == reflect.Ptr {
 		val = val.Elem()
 	}
+	if val.Kind() != reflect.Struct {
+		return nil
+	}
 
 	// 复制默认值
 	defaultObj := reflect.New(val.Type()).Elem()
 	defaultObj.Set(val)
 
-	parseStruct(defaultObj, val, "")
+	parseStruct(val, defaultObj, "")
 	flag.Parse()
-	return obj
+
+	val.Set(defaultObj)
+	return defaultObj
 }
 
 // parseStruct 递归解析结构体字段，注册命令行 flag
@@ -31,7 +36,9 @@ func parseStruct(defaultObj, newObj reflect.Value, prefix string) {
 		fieldValue := newObj.Field(i)
 		defaultFieldValue := defaultObj.Field(i)
 
+		// 获取flag tag
 		flagName := field.Tag.Get("flag")
+		// 获取字段描述
 		desc := field.Tag.Get("desc")
 		fullFlagName := flagName
 
