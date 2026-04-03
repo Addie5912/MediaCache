@@ -4,7 +4,6 @@ import (
 	"io"
 	"mediaCacheService/common/logger"
 	"mediaCacheService/models/resp"
-	"mediaCacheService/remote"
 	"mediaCacheService/service"
 	"mediaCacheService/storage"
 	"net/http"
@@ -27,11 +26,11 @@ type VideoController struct {
 
 // Prepare 初始化服务实例
 func (c *VideoController) Prepare() {
-	r := remote.NewRemote()
-	alarmSvc := service.NewAlarmService()
-	localStorage := storage.NewLocalStorage("LocalStorage")
-	c.videoService = service.NewVideoService(r, localStorage, alarmSvc)
-	c.authService = service.NewAuthService(r)
+	//r := remote.NewRemote()
+	//alarmSvc := service.NewAlarmService()
+	//localStorage := storage.NewLocalStorage("LocalStorage")
+	c.videoService = service.NewVideoService()
+	c.authService = service.NewAuthService()
 }
 
 // GetVideo 处理视频获取请求
