@@ -5,28 +5,32 @@ import (
 	"os"
 	"path"
 
-	"github.com/beego/beego/v2/server/web"
 	"mediaCacheService/common/logger"
+
+	"github.com/beego/beego/v2/server/web"
 )
 
 // BeegoHttpsServer HTTPS 服务器实现，支持证书热更新
 type BeegoHttpsServer struct {
-	server      *web.HttpServer
-	ip          string
-	port        int
-	restartChan chan CertInfo
-	needStart   bool
+	server        *web.HttpServer
+	ip            string
+	port          int
+	CertInfo      CertInfo
+	restartChan   chan CertInfo
+	needStart     bool
+	isServerReady bool
 }
 
 // NewHttpsServer 创建 HTTPS 服务器实例
 func NewHttpsServer(ip string, port int) *BeegoHttpsServer {
 	srv := newBeegoHttpsServer(ip, port)
 	return &BeegoHttpsServer{
-		server:      srv,
-		ip:          ip,
-		port:        port,
-		restartChan: make(chan CertInfo, 1),
-		needStart:   true,
+		server:        srv,
+		ip:            ip,
+		port:          port,
+		restartChan:   make(chan CertInfo, 1),
+		needStart:     true,
+		isServerReady: false,
 	}
 }
 
@@ -91,7 +95,7 @@ func (b *BeegoHttpsServer) updateCertInfo(certInfo CertInfo) {
 	if b.needStart {
 		b.server.Cfg.Listen.HTTPSCertFile = certInfo.CertFile
 		b.server.Cfg.Listen.HTTPSKeyFile = certInfo.KeyFile
-		b.server.TLSConfig = tlsCfg
+		b.server.Server.TLSConfig = tlsCfg
 		b.needStart = false
 		go b.server.Run(fmt.Sprintf("%s:%d", b.ip, b.port))
 		logger.Infof("https server started on %s:%d", b.ip, b.port)
@@ -128,7 +132,7 @@ func (b *BeegoHttpsServer) RunWithPresetCert() {
 
 	b.server.Cfg.Listen.HTTPSCertFile = certInfo.CertFile
 	b.server.Cfg.Listen.HTTPSKeyFile = certInfo.KeyFile
-	b.server.TLSConfig = tlsCfg
+	b.server.Server.TLSConfig = tlsCfg
 	b.needStart = false
 
 	go b.server.Run(fmt.Sprintf("%s:%d", b.ip, b.port))

@@ -4,11 +4,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"math/rand"
 	"mediaCacheService/common/conf"
 	"mediaCacheService/common/logger"
 	"mediaCacheService/storage"
 	"net/http"
-	"os"
 	"strconv"
 	"time"
 )
@@ -28,7 +28,8 @@ func NewRemote() Remote {
 
 // GetVideo 从MUEN媒体服务器获取视频流
 func (r *remoteImpl) GetVideo(videoPath string) (io.ReadCloser, *storage.FileInfo, error) {
-	baseURL := os.Getenv("MUEN_MEDIA_URL_PREFIX")
+	//baseURL := os.Getenv("MUEN_MEDIA_URL_PREFIX")
+	baseURL := MUENMediaMouduleAddress
 	if baseURL == "" {
 		return nil, nil, fmt.Errorf("MUEN_MEDIA_URL_PREFIX not configured")
 	}
@@ -91,10 +92,36 @@ func (r *remoteImpl) PostValidateIMEI(IMEI string, CheckType string) (bool, erro
 
 // GetGIDSAddress 通过CSE服务发现获取GIDS服务地址
 func (r *remoteImpl) GetGIDSAddress() (string, error) {
-	// TODO: 通过CSE服务发现获取GIDS实例地址
-	addr := os.Getenv("GIDS_ADDRESS")
-	if addr == "" {
-		return "", fmt.Errorf("GIDS_ADDRESS not configured")
+	mskey := MicroServiceKey{
+		AppId:       "0",
+		ServiceName: "gids",
+		Version:     "0+",
 	}
-	return addr, nil
+	// MOCK: 这里需要用到cse的接口，但蓝区调用不到，打桩返回地址
+	endpoints, err := MockGetEndPoints(mskey)
+	if err != nil {
+		return "", err
+	}
+
+	rng := rand.New(rand.NewSource(time.Now().UnixNano()))
+	endpointSlice := make([]string, len(endpoints))
+	for endpoint := range endpoints {
+		endpointSlice = append(endpointSlice, endpoint)
+	}
+	return endpointSlice[rng.Intn(len(endpointSlice))], nil
+	//// TODO: 通过CSE服务发现获取GIDS实例地址
+	//addr := os.Getenv("GIDS_ADDRESS")
+	//if addr == "" {
+	//	return "", fmt.Errorf("GIDS_ADDRESS not configured")
+	//}
+	//return addr, nil
+}
+
+func MockGetEndPoints(mskey MicroServiceKey) (map[string]struct{}, error) {
+	var endpoints = map[string]struct{}{}
+	if mskey.AppId == "0" {
+		endpoints["https://127.0.0.1:8080"] = struct{}{}
+		return endpoints, nil
+	}
+	return endpoints, nil
 }

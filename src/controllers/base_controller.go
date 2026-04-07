@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"encoding/json"
+	"io"
 	"mediaCacheService/common/logger"
 	"mediaCacheService/models/resp"
 	"net/http"
@@ -28,7 +29,7 @@ func (c *BaseController) QueryParameter(name string) string {
 
 // PathParameter 获取路径参数
 func (c *BaseController) PathParameter(name string) string {
-	return c.Ctx.Input.Param(":" + name)
+	return c.Ctx.Input.Param(name)
 }
 
 // WriteHeaderAndJSON 写入 HTTP 状态码并序列化 JSON 响应体
@@ -109,6 +110,10 @@ func (c *BaseController) Failed(data resp.BaseResponse) {
 
 // InternalServiceError 返回 HTTP 500 内部错误响应
 func (c *BaseController) InternalServiceError() {
-	r := resp.BaseResponse{Code: -1, Message: "IMessage:服务内部错误"}
+	r := resp.BaseResponse{Code: -1, Message: "InternalServiceError"}
 	_ = c.WriteHeaderAndJSON(http.StatusInternalServerError, r, "application/json")
+}
+
+func (c *BaseController) Body() io.ReadCloser {
+	return c.Ctx.Request.Body
 }

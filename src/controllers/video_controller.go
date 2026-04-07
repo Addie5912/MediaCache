@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"io"
+	"mediaCacheService/common/constants/retcode"
 	"mediaCacheService/common/logger"
 	"mediaCacheService/models/resp"
 	"mediaCacheService/service"
@@ -42,13 +43,16 @@ func (c *VideoController) GetVideo() {
 	checkType := c.QueryParameter("checkType")
 
 	// IMEI鉴权
-	if imei != "" {
-		valid, err := c.authService.ValidateIMEI(imei, checkType)
-		if err != nil || !valid {
-			resp := resp.BaseResponse{Code: 401, Message: "IMEI validation not pass"}
-			_ = c.WriteHeaderAndJSON(http.StatusUnauthorized, resp, "application/json")
-			return
-		}
+	valid, err := c.authService.ValidateIMEI(imei, checkType)
+	if err != nil {
+		logger.Errorf("ValidateIMEI error: %s", err)
+		c.Failed(resp.BaseResponse{Code: retcode.InternalFailed, Message: "IMEI validation err"})
+		return
+	}
+	if !valid {
+		c.Failed(resp.BaseResponse{Code: retcode.AuthFailed, Message: "IMEI validation not pass"})
+		logger.Errorf("ValidateIMEI error: imei %s not valid", imei)
+		return
 	}
 
 	reader, fileInfo, err := c.videoService.GetVideo(videoPath)

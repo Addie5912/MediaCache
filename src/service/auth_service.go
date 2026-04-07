@@ -1,7 +1,6 @@
 package service
 
 import (
-	"fmt"
 	"mediaCacheService/common/logger"
 	"mediaCacheService/remote"
 	"time"
@@ -33,9 +32,10 @@ func (a *authServiceImpl) ValidateIMEI(imei string, checkType string) (bool, err
 	start := time.Now()
 	logger.Infof("[AuthService] start to validate IMEI: %s, checkType: %s", imei, checkType)
 
-	if imei == "" {
-		return false, fmt.Errorf("[AuthService] IMEI is empty")
-	}
+	// 尼日利亚空imei情形
+	//if imei == "" {
+	//	return false, fmt.Errorf("[AuthService] IMEI is empty")
+	//}
 
 	result, err := a.remote.PostValidateIMEI(imei, checkType)
 	if err != nil {
