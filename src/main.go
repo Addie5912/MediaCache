@@ -23,7 +23,7 @@ func main() {
 	// 4. 注册路由并启动HTTP服务
 	routers.Init()
 
-	// 5. 等待退出信号，优雅关闭
+	// 5. 等n待退出信号，优雅关闭
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
