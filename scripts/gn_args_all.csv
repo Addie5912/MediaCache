@@ -1,0 +1,119 @@
+﻿GN Arg Name,描述(中文),Default Value,Involved,Recommended Value,Reason (中文)
+is_debug,调试构建模式会开启大量断言符号和调试信息影响构建体积与性能,true,是,false,在需要最小产出与较高性能的场景下应关闭调试
+is_official_build,官方构建标志影响优化符号与字符串处理,false,是,true,官方构建通常更优化符号更少适合最小化打包
+is_component_build,是否为组件化构建影响链接方式与产物结构,false,是,false,组件化通常增加二进制数量与复杂性简化构建以便减小体积
+symbol_level,符号级别影响调试符号的数量与大小,2,是,0,降低符号级别可减少符号表大小和可执行文件体积
+blink_symbol_level,Blink引擎符号级别依赖symbol_level,depends_on_symbol_level,是,0,为Blink调试符号合理降级以减小体积
+v8_symbol_level,V8引擎符号级别依赖symbol_level,depends_on_symbol_level,是,0,V8符号会影响打包大小通常设为低级别
+dcheck_always_on,DCHECK开关控制运行时断言行为,false,是,false,默认关闭可降低运行时开销
+target_os,目标操作系统构建目标平台,host_os,是,linux,Linux为目标平台时需要针对性配置
+target_cpu,目标CPU架构构建目标CPU,host_cpu,是,x64,确保生成针对正确架构的二进制
+is_linux,是否在Linux平台构建,true,是,true,因目标为Linux确保Linux相关路径与依赖启用
+use_udev,在Linux上使用libudev进行设备枚举,is_linux,是,true,设备枚举对系统运行必要保持启用
+use_dbus,在Linux上使用DBus IPC,is_linux,是,true,DBus IPC是Linux桌面环境必需
+use_gio,在Linux上使用GIO库与相关底层实现,is_linux,是,true,GIO用于文件系统访问保持启用
+enable_vulkan,启用Vulkan图形后端,true,是,false,NO GPU acceleration禁用Vulkan减少GPU依赖
+use_angle,使用ANGLE作为图形翻译层,true,是,false,NO GPU accelerationANGLE增加图形依赖禁用
+use_gl,OpenGL配置开关,true,是,false,NO GPU accelerationOpenGL是GPU路径禁用
+use_egl,EGL支持开关,true,是,false,NO GPU accelerationEGL用于GPU驱动场景禁用
+enable_gpu_client_logging,GPU客户端日志,false,是,false,调试GPU问题时开启生产环境建议关闭
+enable_gpu_service_logging,GPU服务日志,false,是,false,同上避免额外日志开销
+angle_enable_vulkan_gpu_trace_events,Vulkan GPU跟踪事件开关,false,是,false,用于调试阶段生产可关闭
+use_vaapi,在Linux上使用VA API视频解码硬件加速,is_linux,是,false,NO GPU accelerationVA API是硬件加速禁用
+use_v4l2_codec,使用V4L2编解码支持,false,是,false,NO GPU accelerationV4L2是视频硬件编解码禁用
+use_linux_video_acceleration,Linux视频加速总开关,use_vaapi || use_v4l2_codec,是,false,NO GPU acceleration禁用所有Linux视频加速
+media_use_ffmpeg,是否启用FFmpeg媒体框架支持,true,是,true,FFmpeg提供编解码能力YouTube播放需要
+enable_ffmpeg_video_decoders,启用FFmpeg视频解码器,true,是,true,视频解码对播放YouTube必需
+proprietary_codecs,是否启用专有编解码器如H264 AAC等,is_chrome_branded,是,true,YouTube需要H264 AAC编解码器支持
+enable_platform_hevc,启用平台HEVC解码,false,是,false,HEVC解码器对体积有较大影响按需开启
+enable_platform_dolby_vision,启用Dolby Vision解码,false,是,false,极少数场景需要通常保持关闭
+use_cras,在ChromeOS上使用CRAS音频服务,is_chromeos,是,false,ChromeOS特定相关Linux常规不需要
+media_use_opensles,在Android上使用OpenSLES,is_android,是,false,Android特定Linux无关
+enable_nacl,启用Native Client NACL,true,是,false,NACL已逐步淘汰禁用以减小风险和体积
+use_blink,启用Blink渲染引擎,true,是,true,核心渲染路径不能关闭
+enable_library_cdms,启用内容解密模块CDM库,depends,是,true,YouTube等DRM内容需要CDM支持
+build_all,构建所有目标含测试,false,是,false,NO automation testing只构建必要目标减小编译时间
+enable_testing_build,启用测试构建,false,是,false,NO automation testing不需要测试构建
+is_asan,启用AddressSanitizer以检测内存错误,false,是,false,用于调试阶段生产阶段通常关闭
+is_tsan,启用ThreadSanitizer,false,是,false,检测并发问题时使用
+is_lsan,启用LeakSanitizer,false,是,false,检测内存泄漏时使用
+use_sysroot,使用系统根目录sysroot,false,是,false,影响依赖与二进制路径
+is_component_build_for_toolchain,工具链组件构建标志,false,是,false,区分主构建与工具链构建
+use_bundled_qt_plugins,使用捆绑的Qt插件,false,是,false,与Qt相关非必要时禁用
+ffmpeg_branding,FFmpeg Branding信息,Chrome,是,Chromium,Chromium品牌以获得完整编解码器支持
+enable_ozone_platform_x11,Ozone X11平台支持,true,是,true,Linux桌面环境需要X11支持
+enable_ozone_platform_wayland,Ozone Wayland平台支持,false,是,false,若使用Wayland可开启
+ozone_auto_update_clang,Ozone自动更新Clang,true,是,false,编译相关设置
+use_x11,使用X11作为窗口系统,is_linux,是,true,Linux桌面环境需要X11
+is_debug_coverage,覆盖率调试模式,false,是,false,仅用于测试阶段
+is_build_with_chrome_rootfs,RootFS构建开关,false,是,false,与系统镜像打包相关的场景
+disable_ozone_platform,禁用Ozone平台实现,false,是,false,在某些定制系统中禁用
+enable_d3d11_interop,D3D11互操作性,false,是,false,Windows特定Linux无关
+default_cpu_arch,默认CPU体系结构,x86_64,是,x64,帮助确定默认编译目标架构
+use_system_zlib,使用系统自带的zlib,false,是,true,减少依赖使用系统zlib
+enable_experimental_features,启用实验性特性,false,是,false,测试阶段可开启
+gc_trace_events,GC跟踪事件,false,是,false,用于分析与调试
+enable_strict_parser,严格解析器模式,false,是,false,提高错误检测能力
+disable_fieldtrial_testing_config,禁用Field Trial测试配置,false,是,true,禁用A B测试以获得稳定构建
+use_swiftshader,使用SwiftShader作为CPU渲染,false,是,false,NO GPU acceleration不需要SwiftShader替代
+enable_ozone_platform_headless,Ozone Headless平台支持,false,是,true,命令行浏览器操作需要headless支持
+enable_webrtc,WebRTC支持,true,是,true,YouTube Facebook实时通信需要WebRTC
+enable_media_remoting,媒体远程功能,false,是,false,媒体远程需要额外组件禁用
+enable_libvpx,启用libvpx视频编解码器,true,是,true,VP8 VP9编解码器YouTube需要
+rtc_use_h264,RTC使用H264编码,depends,是,true,YouTube视频需要H264编码
+enable_extensions,启用Chrome扩展支持,true,是,false,Playwright命令行操作不需要扩展
+enable_plugins,启用NPAPI插件支持,false,是,false,NPAPI已淘汰禁用
+enable_pdf,PDF查看器内置支持,true,是,false,PDF查看器增加体积禁用
+enable_printing,打印功能支持,true,是,false,打印子系统增加依赖禁用
+enable_sessions,会话管理功能,true,是,true,会话管理对浏览器基本功能必要
+enable_themes,主题支持,true,是,false,主题系统增加资源文件禁用
+enable_autofill,表单自动填写功能,true,是,false,自动填充增加代码体积禁用
+enable_spellcheck,拼写检查功能,true,是,false,拼写检查增加依赖禁用
+enable_webui,WebUI界面组件,true,是,false,WebUI增加界面代码禁用
+enable_safe_browsing,安全浏览保护,is_chrome_branded,是,false,安全浏览会增加网络开销禁用
+enable_captive_portal_detection,捕获门户检测,true,是,false,门户检测增加网络请求禁用
+is_desktop_linux,桌面Linux标志,is_linux,是,true,标识桌面Linux环境
+is_chromeos,ChromeOS标志,false,是,false,非ChromeOS系统
+is_android,Android标志,false,是,false,非Android平台
+is_win,Windows标志,false,是,false,非Windows平台
+is_mac,macOS标志,false,是,false,非macOS平台
+is_ios,iOS标志,false,是,false,非iOS平台
+enable_websockets,WebSocket支持,true,是,true,WebSocket对实时通信必需
+enable_data_reduction_proxy,数据节省代理,false,是,false,数据节省代理功能禁用
+use_headless_crash_reporter,Headless崩溃报告,false,是,false,崩溃报告增加依赖禁用
+enable_background_mode,后台模式支持,true,是,false,命令行操作不需要后台模式
+enable_bookmarks,书签功能支持,true,是,false,书签功能增加代码禁用
+enable_history,历史记录功能,true,是,true,历史记录对基本浏览体验必要
+enable_download,下载功能,true,是,true,下载功能对浏览体验必要
+enable_devtools,开发者工具,true,是,true,Playwright通过DevTools协议控制浏览器
+enable_inspector,Inspector调试支持,true,是,true,DevTools Inspector是Playwright必需
+use_blink_gc,Blink垃圾回收,true,是,true,Blink核心组件保持启用
+enable_webbrowser,Web浏览器核心功能,true,是,true,浏览器核心功能必需
+enable_net_log,网络日志,false,是,false,网络日志增加开销禁用
+enable_trace_log,跟踪日志,false,是,false,跟踪日志增加开销禁用
+use_aura,Aura窗口系统,is_linux,是,true,Linux桌面Aura窗口系统
+enable_notifications,通知功能,true,是,false,通知功能增加依赖禁用
+enable_persistent_sessions,持久化会话,true,是,false,持久化session增加存储禁用
+enable_site_isolation,站点隔离,true,是,true,站点隔离是安全特性保持启用
+enable_viz,Viz显示服务,true,是,true,Viz是渲染服务核心组件
+enable_mojo,Mojo IPC系统,true,是,true,Mojo IPC是Chromium核心通信系统
+enable_service_manager,服务管理器,true,是,true,服务管理器是Chromium架构核心
+enable_surface_synchronization,表面同步,true,是,true,渲染同步机制核心功能
+use_minimal_deps,最小依赖构建,false,是,true,启用最小依赖以减小体积
+enable_vr,VR虚拟现实支持,false,是,false,VR功能增加依赖禁用
+enable_ar,AR增强现实支持,false,是,false,AR功能增加依赖禁用
+enable_ml,机器学习支持,false,是,false,ML功能增加依赖禁用
+enable_assistant,助手功能,false,是,false,助手功能增加依赖禁用
+enable_voice_input,语音输入,false,是,false,NO microphone禁用语音输入
+enable_speech_recognition,语音识别,false,是,false,NO microphone禁用语音识别
+enable_audio_capture,音频捕获,true,是,false,NO microphone禁用音频捕获
+enable_video_capture,视频捕获,true,是,false,NO camera禁用视频捕获
+enable_geolocation,地理位置访问,true,是,false,NO geolocation禁用地理位置功能
+enable_device_orientation,设备方向传感器,true,是,false,设备传感器功能禁用
+enable_gamepad,游戏手柄支持,true,是,false,游戏手柄增加依赖禁用
+enable_usb,USB设备访问,true,是,false,USB设备访问增加依赖禁用
+enable_bluetooth,蓝牙支持,true,是,false,蓝牙功能增加依赖禁用
+enable_file_access,文件系统访问,true,是,true,文件访问对浏览器下载等功能必要
+enable_clipboard,剪贴板功能,true,是,true,剪贴板对复制粘贴必要
+enable_drag_drop,拖拽功能,true,是,false,拖拽功能非必要禁用
+enable_touch,触摸屏支持,true,是,false,触摸屏功能增加依赖禁用
