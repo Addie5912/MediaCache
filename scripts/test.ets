@@ -1,26 +1,14 @@
-Thinking: 用户需要ArkTS代码实现以下功能：
-1. 从固定路径 /data/log/ 读取文件
-2. 找到最新的 log{timestamp}.gz 文件（如 log2026.gz）
-3. 解压 .gz 文件
-4. 从解压后的文件中过滤包含 "jdpull-ai.jd.com" 的URL
-5. 返回最新的URL
-这是一个实现任务。我需要：
-1. 了解ArkTS/HarmonyOS的API
-2. 编写完整代码
-由于librarian失败了，我将直接编写代码。ArkTS基于TypeScript，使用HarmonyOS的API。
-关键API：
-- @ohos.file.fs - 文件系统操作
-- @ohos.zlib - 压缩解压
-- 正则表达式匹配URL
-让我创建一个完整的实现。
-我将为您编写ArkTS代码实现这个功能：
 import fs from '@ohos.file.fs';
 import zlib from '@ohos.zlib';
-/**
- * 从固定目录解压并获取最新URL
- */
+import util from '@ohos.util';
+import common from '@ohos.app.ability.common';
 export class LogUrlExtractor {
-  private readonly LOG_DIR: string = '/data/log/';
+  private readonly LOG_DIR: string = '/data/log/';  // 只读的源目录
+  private context: common.Context;  // 应用上下文，用于获取缓存目录
+  
+  constructor(context: common.Context) {
+    this.context = context;
+  }
   
   /**
    * 主入口：获取最新的jdpull-ai.jd.com URL
@@ -36,7 +24,7 @@ export class LogUrlExtractor {
       
       console.info(`找到最新文件: ${latestGzFile}`);
       
-      // 2. 解压文件
+      // 2. 解压文件到应用缓存目录（有写权限）
       const decompressedPath = await this.decompressFile(latestGzFile);
       if (!decompressedPath) {
         console.error('解压失败');
@@ -57,7 +45,7 @@ export class LogUrlExtractor {
   }
   
   /**
-   * 查找最新的log*.gz文件
+   * 查找最新的log*.gz文件（只读操作）
    */
   private findLatestGzFile(): string | null {
     try {
@@ -92,14 +80,21 @@ export class LogUrlExtractor {
   }
   
   /**
-   * 解压.gz文件
-   * @param gzFilePath .gz文件路径
-   * @returns 解压后的文件路径
+   * 解压.gz文件到应用缓存目录
+   * @param gzFilePath .gz文件路径（只读）
+   * @returns 解压后的文件路径（应用缓存目录）
    */
   private async decompressFile(gzFilePath: string): Promise<string | null> {
     try {
-      // 生成解压后的文件路径（去掉.gz后缀）
-      const decompressedPath = gzFilePath.replace('.gz', '');
+      // 获取应用缓存目录（有写权限）
+      const cacheDir = this.context.cacheDir;
+      
+      // 生成解压后的文件路径（在应用缓存目录中）
+      const fileName = gzFilePath.substring(gzFilePath.lastIndexOf('/') + 1);
+      const decompressedFileName = fileName.replace('.gz', '');
+      const decompressedPath = cacheDir + '/' + decompressedFileName;
+      
+      console.info(`准备解压到: ${decompressedPath}`);
       
       // 使用zlib解压
       await zlib.decompressFile(gzFilePath, decompressedPath, (errCode: number) => {
@@ -178,59 +173,8 @@ export class LogUrlExtractor {
     }
   }
 }
-// 需要导入util模块
-import util from '@ohos.util';
 // 使用示例
-export async function getLatestPullUrl(): Promise<string | null> {
-  const extractor = new LogUrlExtractor();
+export async function getLatestPullUrl(context: common.Context): Promise<string | null> {
+  const extractor = new LogUrlExtractor(context);
   return await extractor.getLatestUrl();
 }
-代码说明
-核心功能模块
-1. 文件查找 (findLatestGzFile)
-   - 扫描 /data/log/ 目录
-   - 正则匹配 log\d+\.gz 格式文件
-   - 按时间戳排序，获取最新文件
-2. 文件解压 (decompressFile)
-   - 使用 @ohos.zlib 模块解压 .gz 文件
-   - 解压后文件名去掉 .gz 后缀
-3. URL提取 (extractLatestUrl)
-   - 读取解压后文件内容
-   - 正则匹配：https://jdpull-ai.jd.com/live/[A-Za-z0-9]+_fhd.flv
-   - 返回最后一个匹配项（最新的URL）
-4. 资源清理 (cleanupFile)
-   - 删除解压后的临时文件
-使用方式
-// 在你的业务代码中调用
-import { getLatestPullUrl } from './LogUrlExtractor';
-async function example() {
-  const url = await getLatestPullUrl();
-  if (url) {
-    console.info(`获取到URL: ${url}`);
-    // 使用URL进行后续操作
-  } else {
-    console.error('未获取到有效URL');
-  }
-}
-权限配置
-需要在 module.json5 中添加文件读写权限：
-{
-  "module": {
-    "requestPermissions": [
-      {
-        "name": "ohos.permission.READ_MEDIA",
-        "reason": "读取日志文件"
-      },
-      {
-        "name": "ohos.permission.WRITE_MEDIA",
-        "reason": "清理临时文件"
-      }
-    ]
-  }
-}
-注意事项
-1. 文件编码：假设日志文件为UTF-8编码
-2. 错误处理：每个步骤都有try-catch确保稳定性
-3. 资源释放：使用后自动清理解压文件
-4. 最新判断：基于文件名时间戳排序，假设日志按时间顺序追加
-如需调整URL匹配规则或文件路径，修改对应的正则表达式和常量即可。
