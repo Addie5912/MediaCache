@@ -125,3 +125,20 @@ export async function getLatestPullUrl(context: common.Context): Promise<string 
   const extractor = new LogUrlExtractor(context);
   return await extractor.getLatestUrl();
 }
+
+
+需要在 module.json5 中添加文件读写权限：
+{
+  "module": {
+    "requestPermissions": [
+      {
+        "name": "ohos.permission.READ_MEDIA",
+        "reason": "读取日志文件"
+      },
+      {
+        "name": "ohos.permission.WRITE_MEDIA",
+        "reason": "清理临时文件"
+      }
+    ]
+  }
+}
