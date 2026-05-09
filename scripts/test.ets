@@ -142,3 +142,63 @@ export async function getLatestPullUrl(context: common.Context): Promise<string 
     ]
   }
 }
+
+
+private findLatestGzFile(): string | null {
+  try {
+    // 先检查目录是否存在
+    console.info(`检查目录: ${this.LOG_DIR}`);
+    
+    const isAccessible = this.checkDirAccess(this.LOG_DIR);
+    if (!isAccessible) {
+      console.error(`目录不可访问: ${this.LOG_DIR}`);
+      console.error('可能原因: 1)目录不存在 2)权限不足 3)路径错误');
+      return null;
+    }
+    
+    const files = fs.listFileSync(this.LOG_DIR);
+    console.info(`目录中的文件数量: ${files.length}`);
+    
+    const gzFiles: string[] = [];
+    const pattern = /^log\d+\.gz$/;
+    
+    for (let i = 0; i < files.length; i++) {
+      console.info(`发现文件: ${files[i]}`);
+      if (pattern.test(files[i])) {
+        gzFiles.push(files[i]);
+      }
+    }
+    
+    console.info(`匹配的.gz文件数量: ${gzFiles.length}`);
+    
+    if (gzFiles.length === 0) {
+      console.error('未找到log*.gz文件');
+      return null;
+    }
+    
+    gzFiles.sort((a, b) => b.localeCompare(a));
+    const latestFile = this.LOG_DIR + gzFiles[0];
+    console.info(`最新文件: ${latestFile}`);
+    
+    return latestFile;
+  } catch (error) {
+    const err = error as BusinessError;
+    console.error(`读取目录失败: code=${err.code}, message=${err.message}`);
+    return null;
+  }
+}
+/**
+ * 检查目录是否可访问
+ */
+private checkDirAccess(dirPath: string): boolean {
+  try {
+    // 尝试访问目录
+    fs.accessSync(dirPath);
+    console.info(`目录存在且可访问: ${dirPath}`);
+    return true;
+  } catch (error) {
+    const err = error as BusinessError;
+    console.error(`目录访问失败: code=${err.code}, message=${err.message}`);
+    return false;
+  }
+}
